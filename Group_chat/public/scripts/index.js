@@ -9,7 +9,6 @@ document.getElementById('submitSignUp').addEventListener('submit',async(event)=>
             password:form.password.value
         };
     try {   
-        console.log('inside the try block');
         const response=await fetch(`http://localhost:3000/users/signup`,{
             method:'POST',
             headers:{
