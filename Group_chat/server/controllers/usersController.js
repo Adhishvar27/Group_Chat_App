@@ -1,5 +1,6 @@
 const bcrypt=require('bcrypt');
 const UserTable=require('../models/userTable');
+const jwt=require('jsonwebtoken');
 
 const usersignup=async(req,res)=>{
     try {
@@ -24,6 +25,34 @@ const usersignup=async(req,res)=>{
     }
 }
 
+function generatejwttoken(id,name){
+    return jwt.sign({userId:id,userName:name},'cP6+yF@7z%wUb4N!kHq2Rs&E^YjX*Z#vJm3!tQ^pFqL9$Gn6Rd0HbXs!oLjA%TrCq');
+}
+
+const userlogin=async(req,res)=>{
+    try {
+        const {email,password}=req.body;
+        const isExisting=await UserTable.findOne({where:{email:email}});
+        if(!isExisting){
+            return res.status(404).json({message:'User Not Found'});
+        }
+        bcrypt.compare(password,isExisting.password,(err,result)=>{
+            if(err){
+                throw new Error('Somthing went wrong');
+            }
+            if(result===true){
+                return res.status(200).json({message:'Login Successfully',token:generatejwttoken(isExisting.id,isExisting.name)});
+            }
+            else{
+                return res.status(400).json({message:'Password is inncorrect'});
+            }
+        })
+    } catch (error) {
+        return res.status(500).json({message: error.message});
+    }
+}
+
 module.exports={
-    usersignup
+    usersignup,
+    userlogin
 }

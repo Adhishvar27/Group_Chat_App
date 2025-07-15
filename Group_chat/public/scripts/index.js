@@ -1,6 +1,19 @@
 
-document.getElementById('submitSignUp').addEventListener('submit',async(event)=>{
-   
+window.addEventListener('DOMContentLoaded',()=>{
+    const signUpForm=document.getElementById('submitSignUp');
+    if(signUpForm){
+        signUpForm.addEventListener('submit',signupfunction)
+    }
+
+    const loginForm=document.getElementById('loginsubmit');
+    if(loginForm){
+        loginForm.addEventListener('submit',loginfunction);
+    }
+})
+
+
+
+async function signupfunction(event){
         event.preventDefault();
         const form=event.target;
         const obj={
@@ -19,12 +32,13 @@ document.getElementById('submitSignUp').addEventListener('submit',async(event)=>
         });
         const data=await response.json();
         alert(data.message);
+        form.reset();
     } catch (error) {
         console.log('Somthing went wrong');
     }
-});
+};
 
-document.getElementById('loginsubmit').addEventListener('submit',async(event)=>{
+async function loginfunction(event) {
     event.preventDefault();
     const form=event.target;
     const email=form.email.value;
@@ -44,12 +58,13 @@ document.getElementById('loginsubmit').addEventListener('submit',async(event)=>{
 
         const data=await response.json();
         if(!response.ok){
-            throw new Error(data.message);
+            alert(data.message);
         }
+        localStorage.setItem('token',data.token);
         alert(data.message);
         form.reset();
     } catch (error) {
         console.log(error);
         alert(error);
     }
-})
+};
