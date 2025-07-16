@@ -41,7 +41,7 @@ const userlogin=async(req,res)=>{
                 throw new Error('Somthing went wrong');
             }
             if(result===true){
-                return res.status(200).json({message:'Login Successfully',token:generatejwttoken(isExisting.id,isExisting.name)});
+                return res.status(200).json({message:'Login Successfully',Username:isExisting.name,token:generatejwttoken(isExisting.id,isExisting.name)});
             }
             else{
                 return res.status(400).json({message:'Password is inncorrect'});

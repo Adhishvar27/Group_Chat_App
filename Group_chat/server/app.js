@@ -11,11 +11,14 @@ app.use(express.static(path.join(__dirname, '../public')));
 const UserRouter=require('./routers/usersRouters');
 app.use('/users',UserRouter);
 
+const ChatRouter=require('./routers/chatsRouter');
+app.use('/app',ChatRouter);
+
 app.use('/',(req,res)=>{
     res.sendFile(path.join(__dirname,'..','public','signUp.html'));
 })
 
-db.sync({force:true}).then(()=>{
+db.sync({alter:true}).then(()=>{
     app.listen(3000,()=>{
     console.log('server is running');
 });

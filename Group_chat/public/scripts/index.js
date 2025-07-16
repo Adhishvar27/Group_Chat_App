@@ -1,5 +1,6 @@
 
 window.addEventListener('DOMContentLoaded',()=>{
+
     const signUpForm=document.getElementById('submitSignUp');
     if(signUpForm){
         signUpForm.addEventListener('submit',signupfunction)
@@ -61,8 +62,11 @@ async function loginfunction(event) {
             alert(data.message);
         }
         localStorage.setItem('token',data.token);
+        localStorage.setItem('username',data.Username)
         alert(data.message);
-        form.reset();
+        if(response.ok){
+            window.location.href='chat_app/chatpage.html'
+        }
     } catch (error) {
         console.log(error);
         alert(error);
