@@ -23,6 +23,7 @@ async function loadchats() {
         if (!response.ok) {
             alert('failed to load the chats');
         }
+        chatsList.innerHTML = '';
         console.log(data);
         data.chats.forEach(chat => {
             const li = document.createElement('li');
@@ -62,3 +63,4 @@ async function sendmessagefunction(event) {
     }
 }
 
+setInterval(loadchats,1000);
