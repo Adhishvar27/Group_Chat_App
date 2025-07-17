@@ -1,8 +1,11 @@
 
 const token=localStorage.getItem('token');
+const chatsList = document.getElementById('chatsList');
+
 window.addEventListener('DOMContentLoaded', () => {
-    loadchats();
-    //usermessage();
+    //loadchats();
+    loadoldmessagesfromlocalstoage();
+    setInterval(fetchNewMessages,1000);
     const sendmessgae=document.getElementById('sendBtn');
     if(sendmessgae){
         sendmessgae.addEventListener('click',sendmessagefunction);
@@ -10,57 +13,121 @@ window.addEventListener('DOMContentLoaded', () => {
 
 });
 
-// function usermessage(){
+function loadoldmessagesfromlocalstoage(){
+    chatsList.innerHTML = ''; 
+    const oldmessages=JSON.parse(localStorage.getItem('chats'))||[];
+    oldmessages.forEach(renderChat);
+}
 
+function renderChat(chat){
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.innerHTML = `<strong>${chat.name}:</strong> ${chat.message}
+  <br><small class="text-muted">${new Date(chat.createdAt).toLocaleTimeString()}</small>`;
+    chatsList.appendChild(li);
+}
+
+async function fetchNewMessages(){
+    const savedchat=JSON.parse(localStorage.getItem('chats'))||[];
+    const lastId=savedchat.length?savedchat[savedchat.length-1].id : -1 ;
+    try {
+        const response=await fetch(`http://localhost:3000/app/getMessage?lastmessageid=${lastId}`);
+        const newmessage=await response.json();
+        if (newmessage && newmessage.length > 0){
+            chatsList.innerHTML = ''; 
+            newmessage.forEach(renderChat);
+            const mergeMessage=[...savedchat,...newmessage].slice(-10);
+            localStorage.setItem('chats',JSON.stringify(mergeMessage));
+        }
+
+    } catch (error) {
+          console.error('Error fetching new messages:', error);
+    }
+}
+
+
+
+// async function loadchats() {
+//     try {
+//         const response = await fetch('http://localhost:3000/app/groupchats');
+//         const data = await response.json();
+//         if (!response.ok) {
+//             alert('failed to load the chats');
+//         }
+//         chatsList.innerHTML = '';
+//         console.log(data);
+//         data.chats.forEach(chat => {
+
+//             const li = document.createElement('li');
+//             li.className = 'list-group-item';
+//             li.innerHTML = `<strong>${chat.user.name}:</strong> ${chat.message}`;
+//             chatsList.appendChild(li);
+//         });
+//     } catch (error) {
+//         console.log(error);
+//     }
 // }
 
-const chatsList = document.getElementById('chatsList');
 
-async function loadchats() {
-    try {
-        const response = await fetch('http://localhost:3000/app/groupchats');
-        const data = await response.json();
-        if (!response.ok) {
-            alert('failed to load the chats');
-        }
-        chatsList.innerHTML = '';
-        console.log(data);
-        data.chats.forEach(chat => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item';
-            li.innerHTML = `<strong>${chat.user.name}:</strong> ${chat.message}`;
-            chatsList.appendChild(li);
-        });
-    } catch (error) {
-        console.log(error);
-    }
-}
 
 async function sendmessagefunction(event) {
-    try {
-        const messageInput = document.getElementById('chatmessage');
-        const message={
-            message:messageInput.value
-        };
-        const response=await fetch('http://localhost:3000/app/messagestore',{
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json',
-                'Authorization':`${token}`
+    event.preventDefault();
+    const messageInput = document.getElementById('chatmessage');
+    const message = { message: messageInput.value };
+     try {
+        const response = await fetch('http://localhost:3000/app/messagestore', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${token}`
             },
-            body:JSON.stringify(message)
+            body: JSON.stringify(message)
         });
-        messageInput.value = ''
-        const data=await response.json();
-        const li=document.createElement('li');
-        li.className='list-group-item';
-        li.innerHTML=`<strong>${data.name}:</strong> ${data.message}`;
-        chatsList.appendChild(li);
-        loadchats();
 
-    } catch (error) {
-        console.log(error);
+        const data = await response.json();
+        messageInput.value = '';
+         const newMsg = {
+            id: data.id,
+            name: data.name,
+            message: data.message,
+            createdAt: data.createdAt
+        };
+        renderChat(newMsg);
+        const chats = JSON.parse(localStorage.getItem('chats')) || [];
+        const updated = [...chats, newMsg].slice(-10);
+        localStorage.setItem('chats', JSON.stringify(updated));
     }
+    catch(error){
+         console.error('Error sending message:', error);
+    }
+    
 }
 
-setInterval(loadchats,1000);
+
+// async function sendmessagefunction(event) {
+    // try {
+    //     const messageInput = document.getElementById('chatmessage');
+    //     const message={
+    //         message:messageInput.value
+//         };
+//         const response=await fetch('http://localhost:3000/app/messagestore',{
+//             method:'POST',
+//             headers:{
+//                 'Content-Type':'application/json',
+//                 'Authorization':`${token}`
+//             },
+//             body:JSON.stringify(message)
+//         });
+//         messageInput.value = ''
+//         const data=await response.json();
+//         const li=document.createElement('li');
+//         li.className='list-group-item';
+//         li.innerHTML=`<strong>${data.name}:</strong> ${data.message}`;
+//         chatsList.appendChild(li);
+//         loadchats();
+
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
