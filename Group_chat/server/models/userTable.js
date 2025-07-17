@@ -24,6 +24,10 @@ const usertable=database.define('users',{
     password:{
         type:DataTypes.STRING,
         allowNull:false
+    },
+    isOnline:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
 });
 

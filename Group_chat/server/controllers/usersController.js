@@ -36,11 +36,16 @@ const userlogin=async(req,res)=>{
         if(!isExisting){
             return res.status(404).json({message:'User Not Found'});
         }
-        bcrypt.compare(password,isExisting.password,(err,result)=>{
+        bcrypt.compare(password,isExisting.password,async(err,result)=>{
             if(err){
                 throw new Error('Somthing went wrong');
             }
             if(result===true){
+                await UserTable.update({isOnline:true},{
+                    where:{
+                        email:email
+                    }
+                });
                 return res.status(200).json({message:'Login Successfully',Username:isExisting.name,token:generatejwttoken(isExisting.id,isExisting.name)});
             }
             else{
@@ -52,7 +57,17 @@ const userlogin=async(req,res)=>{
     }
 }
 
+const getallusers=async(req,res)=>{
+    try {
+        const alluser=await UserTable.findAll();
+        res.status(200).json(alluser);
+    } catch (error) {
+        res.status(500).json(error.message);
+    }
+}
+
 module.exports={
     usersignup,
-    userlogin
+    userlogin,
+    getallusers
 }
