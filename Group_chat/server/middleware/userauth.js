@@ -4,7 +4,14 @@ const key = "cP6+yF@7z%wUb4N!kHq2Rs&E^YjX*Z#vJm3!tQ^pFqL9$Gn6Rd0HbXs!oLjA%TrCq"
 
 async function authenticateuser(req, res, next) {
     try {
-        const token = req.header('Authorization');
+
+        let token;
+        if(req.body && req.body.token){
+            token=req.body.token;
+        }
+        else if(req.header('Authorization')){
+            token=req.header('Authorization');
+        }
         const decoded = jwt.verify(token, key);
         const user = await UserTable.findByPk(decoded.userId);
         if (!user) {

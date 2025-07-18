@@ -15,7 +15,13 @@ const chattable=database.define('chats',{
     message:{
         type:DataTypes.STRING,
         allowNull:false
+    },
+    groupId:{
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        defaultValue:100
     }
+
 });
 
 module.exports=chattable

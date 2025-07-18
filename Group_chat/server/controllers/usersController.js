@@ -26,7 +26,7 @@ const usersignup=async(req,res)=>{
 }
 
 function generatejwttoken(id,name){
-    return jwt.sign({userId:id,userName:name},'cP6+yF@7z%wUb4N!kHq2Rs&E^YjX*Z#vJm3!tQ^pFqL9$Gn6Rd0HbXs!oLjA%TrCq');
+    return jwt.sign({userId:id,userName:name},'cP6+yF@7z%wUb4N!kHq2Rs&E^YjX*Z#vJm3!tQ^pFqL9$Gn6Rd0HbXs!oLjA%TrCq', { expiresIn: '1h' });
 }
 
 const userlogin=async(req,res)=>{
@@ -66,8 +66,37 @@ const getallusers=async(req,res)=>{
     }
 }
 
+const logoutuser=async(req,res)=>{
+    try {
+        await UserTable.update({isOnline:false},{
+            where:{
+                id:req.user.id
+            }
+        });
+        res.status(200).json({message:'User logged out successfully'});
+    } catch (error) {
+        res.status(500).json(error.message);
+    }
+}
+
+const markifonline=async (req,res) => {
+    try {
+        await UserTable.update({isOnline:true},{
+            where:{
+                id:req.user.id
+            }
+        });
+
+        res.status(200).json({message:'user status updated successully'});
+    } catch (error) {
+        res.status(500).json({message:error});
+    }
+}
+
 module.exports={
     usersignup,
     userlogin,
-    getallusers
+    getallusers,
+    logoutuser,
+    markifonline
 }
