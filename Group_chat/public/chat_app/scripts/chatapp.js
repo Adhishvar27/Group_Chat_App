@@ -10,7 +10,6 @@ if (commongrpbtn) {
     const chatKey = `chats_${GroupId}`;
     GroupId = 100;
     chatsList.innerHTML = '';
-    localStorage.removeItem(chatKey);
     fetchNewMessages();
   });
 }
@@ -50,7 +49,7 @@ window.addEventListener('DOMContentLoaded', () => {
     setInterval(()=>{
         fetchNewMessages();
         getuserslist();
-    },20000);
+    },60000);
     const sendmessgae = document.getElementById('sendBtn');
     if (sendmessgae) {
         sendmessgae.addEventListener('click', sendmessagefunction);
@@ -116,7 +115,7 @@ async function newgroupcreation(event){
         button.addEventListener('click',()=>{
             GroupId = data.id; 
             chatsList.innerHTML = ''; 
-            localStorage.removeItem(chatKey);
+            //localStorage.removeItem(chatKey);
             fetchNewMessages();
         });
         li.appendChild(button);
@@ -140,11 +139,13 @@ async function loadgroupsfromDB(){
         const button = document.createElement('button');
         button.className = 'btn btn-light w-100 text-start'
         button.textContent = group.name;
-        button.addEventListener('click',()=>{
+        button.addEventListener('click',async()=>{
             GroupId = group.id; 
             chatsList.innerHTML = ''; 
-            localStorage.removeItem('chats');
-            fetchNewMessages();
+            // localStorage.removeItem('chats');
+            button.disabled = true;
+            await fetchNewMessages();
+            button.disabled = false;
         });
         li.appendChild(button);
         grouplist.appendChild(li);
@@ -160,7 +161,6 @@ async function loadoldmessagesfromlocalstoage() {
     const response = await fetch(`http://localhost:3000/app/getMessage?lastmessageid=-1&groupId=${GroupId}`);
     const freshFromDB = await response.json();
     if (freshFromDB.length === 0 && oldmessages.length > 0) {
-        localStorage.removeItem(chatKey);
         chatsList.innerHTML = '';    
         return;
     }
@@ -180,14 +180,15 @@ function renderChat(chat) {
 async function fetchNewMessages() {
      const chatKey = `chats_${GroupId}`;
     const savedchat = JSON.parse(localStorage.getItem(chatKey)) || [];
-    //const lastId = savedchat.length ? savedchat[savedchat.length - 1].id : -1;
+    const lastId =savedchat.length ? savedchat[savedchat.length - 1].id : -1;
     try {
-        console.log(GroupId);
-        const response = await fetch(`http://localhost:3000/app/getMessage?lastmessageid=-1&groupId=${GroupId}`);
+        chatsList.innerHTML = '';
+        savedchat.forEach(renderChat);
+        const response = await fetch(`http://localhost:3000/app/getMessage?lastmessageid=${lastId}&groupId=${GroupId}`);
         const newmessage = await response.json();
-        console.log(newmessage);
         if (newmessage && newmessage.length > 0) {
             chatsList.innerHTML = '';
+            console.log(renderChat);
             newmessage.forEach(renderChat);
             const mergeMessage = [...savedchat, ...newmessage].slice(-10);
             localStorage.setItem(chatKey, JSON.stringify(mergeMessage));

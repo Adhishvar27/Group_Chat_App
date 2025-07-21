@@ -18,33 +18,35 @@ const { Sequelize } = require('sequelize');
 //     }
 // }
 
-const getchats=async(req,res)=>{
-     const lastId = +req.query.lastmessageid;
-     const groupId= req.query.groupId || 100;
-     try {
-        const newChats=await ChatTable.findAll({
-            where:{
-                id:{
-                    [Sequelize.Op.gt]:lastId
-                },
-                groupId:groupId
-            },
-            include: [{ model: UserTable, attributes: ['name'] }],
-            order: [['id', 'ASC']]
-        });
-        console.log(newChats);
-         const formatted = newChats.map(chat => ({
-            id: chat.id,
-            message: chat.message,
-            name: chat.user.name,
-            createdAt: chat.createdAt
-        }));
-        //await GroupsTable.findOrCreate({where: { id: 100 },defaults: { name: 'Common Group' }});
-        res.status(200).json(formatted);
-     } catch (error) {
-         res.status(500).json({ message: 'Error fetching chats', error: error.message });
-     }
-}
+const getchats = async (req, res) => {
+  let lastId = parseInt(req.query.lastmessageid);
+  if (isNaN(lastId)) lastId = -1;
+  const groupId = parseInt(req.query.groupId) || 100;
+
+  try {
+    const chats = await ChatTable.findAll({
+      where: {
+        id: { [Sequelize.Op.gt]: lastId },
+        groupId: groupId
+      },
+      include: [{ model: UserTable, attributes: ['name'] }],
+      order: [['id', 'ASC']]
+    });
+
+    const formatted = chats.map(chat => ({
+      id: chat.id,
+      message: chat.message,
+      name: chat.user.name,
+      createdAt: chat.createdAt
+    }));
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error('Fetch error:', error);
+    res.status(500).json({ message: 'Error fetching chats', error: error.message });
+  }
+};
+
 
 const storemessage = async (req, res) => {
 
