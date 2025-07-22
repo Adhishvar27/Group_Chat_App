@@ -9,12 +9,27 @@ const usersgroups=database.define('usersgroups',{
     },
     userId:{
         type:DataTypes.INTEGER,
-        allowNull:false 
+        allowNull:false
     },
     groupId:{
         type:DataTypes.INTEGER,
         allowNull:false
-
+    },
+    isAdmin:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
+    },
+    joinedAt:{
+        type:DataTypes.DATE,
+        defaultValue:DataTypes.NOW
     }
+}, {
+    indexes: [
+        {
+            unique: true,
+            fields: ['userId', 'groupId']
+        }
+    ]
 });
-module.exports=usersgroups
+
+module.exports=usersgroups;

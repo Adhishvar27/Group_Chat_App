@@ -10,7 +10,12 @@ ChatTable.belongsTo(UserTable,{foreignKey:'senderId'});
 UserTable.belongsToMany(GroupsTable,{through:UsersGroups,foreignKey:'userId'});
 GroupsTable.belongsToMany(UserTable,{through:UsersGroups,foreignKey:'groupId'});
 
+UsersGroups.belongsTo(GroupsTable, {foreignKey: 'groupId',as: 'group'});
+UsersGroups.belongsTo(UserTable, {foreignKey: 'userId',as: 'user'});
 
 module.exports={
-    UserTable
+    UserTable,
+    ChatTable,
+    GroupsTable,
+    UsersGroups
 }

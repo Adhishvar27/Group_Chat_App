@@ -21,7 +21,13 @@ app.use('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'signUp.html'));
 })
 
-db.sync({ alter: true }).then(() => {  
+db.sync({  alter : true }).then(async () => {  
+    const GroupsTable = require('./models/groupsTable');
+    await GroupsTable.findOrCreate({
+        where: { id: 100 },
+        defaults: { name: 'Common Group', admin: 100 }
+    });
+
     app.listen(3000, () => {
         console.log('server is running');
     });

@@ -24,7 +24,7 @@ const getchats = async (req, res) => {
   const groupId = parseInt(req.query.groupId) || 100;
 
   try {
-    const chats = await ChatTable.findAll({
+    const {count,rows} = await ChatTable.findAndCountAll({
       where: {
         id: { [Sequelize.Op.gt]: lastId },
         groupId: groupId
@@ -33,11 +33,12 @@ const getchats = async (req, res) => {
       order: [['id', 'ASC']]
     });
 
-    const formatted = chats.map(chat => ({
+    const formatted = rows.map(chat => ({
       id: chat.id,
       message: chat.message,
       name: chat.user.name,
-      createdAt: chat.createdAt
+      createdAt: chat.createdAt,
+      count:count
     }));
 
     res.status(200).json(formatted);

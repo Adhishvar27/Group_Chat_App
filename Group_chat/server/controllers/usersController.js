@@ -1,5 +1,6 @@
 const bcrypt=require('bcrypt');
 const UserTable=require('../models/userTable');
+const UsersGroups = require('../models/usersgroups');
 const jwt=require('jsonwebtoken');
 
 const usersignup=async(req,res)=>{
@@ -17,6 +18,12 @@ const usersignup=async(req,res)=>{
                 return res.status(500).json({message:'Error while hashing the password'});
             }
             const newUser=await UserTable.create({name,email,phone,password:hash});
+
+            await UsersGroups.create({
+                userId: newUser.id,
+                groupId: 100
+            });
+
             res.status(200).json({newUser: newUser,message:'User Created successfully'});
         });
     } catch (error) {
